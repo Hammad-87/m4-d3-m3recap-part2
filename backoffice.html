@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <title>Recap M3 - Part 2</title>
+  </head>
+  <body>
+
+    <div id="movie-form" class="container">
+
+    </div>
+    <input type="button" class="btn btn-primary" value="Send" onClick="submitInfo()" /> 
+    <input type="button" class="btn btn-danger" id="removeMovie" value="Remove" onClick="deleteMovieClick()" style="display:none;" /> 
+
+
+    <script>
+      const fields = [ "name", "imageUrl", "description", "category"]
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+
+      const submitInfo = async () => {
+        const movie = fields.reduce((acc, curr) => {
+          const fieldValue =  document.querySelector("#" + curr).value //get the value for the given field
+          return { ...acc, [curr]: fieldValue} // set it in the new object
+        },{})
+        // const movie2 = {} 
+        // fields.forEach(field => {
+        //   movie2[field] = document.querySelector("#" + field).value
+        // })
+
+        if (id)  //if I have an ID => I'm modifying something
+          await updateMovie(movie, id)
+        else
+          await createMovie(movie)
+      }
+
+      const deleteMovieClick = async () => {
+        await deleteMovie(id)
+        window.location.href = "index.html"
+      }
+
+      window.onload = async () => {
+        const movieForm = document.querySelector("#movie-form")
+
+        movieForm.innerHTML = fields.map(field => `<input type="text" id="${field}" placeholder="${field}" />`).join('')
+
+        if (id){ // if we have an ID in the query => it means I have to edit
+          //get the movie information from the id
+          const movie = await getMovie(id)
+          //pre-populate the fields
+          fields.forEach(field => {
+            const input = document.querySelector("#" + field)
+            input.value = movie[field]
+          })
+
+          const deleteButton = document.querySelector("#removeMovie")
+          deleteButton.style.display = "block"
+        }
+      }
+    </script>
+    
+    <script src="helper.js" ></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+  </body>
+</html>
